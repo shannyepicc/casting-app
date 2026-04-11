@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
-import { MuxPlayer } from "@/components/mux-player";
+import { VideoGrid } from "@/components/video-grid";
+import { ShortlistButton } from "@/components/shortlist-button";
 import { getActorByUsername } from "@/lib/supabase/queries";
 
 function initials(name: string) {
@@ -22,18 +23,16 @@ export default async function ActorProfilePage({
 
   if (!actor) notFound();
 
-  const featuredMedia = media.find((m) => m.is_featured) ?? media[0] ?? null;
-  const otherClips = media.filter((m) => m.id !== featuredMedia?.id);
-
   const ageParts = [actor.age?.toString(), actor.gender].filter(Boolean).join(" · ");
 
   return (
     <AppShell
       eyebrow="Actor Profile"
       title={actor.full_name}
-      actions={<button className="primary-button">Save to Shortlist</button>}
+      actions={<ShortlistButton actorId={actor.id} />}
     >
       <div className="profile-layout">
+
         {/* ── Summary ───────────────────────────────────────────── */}
         <section className="panel profile-summary">
           {actor.headshot_url ? (
@@ -74,58 +73,19 @@ export default async function ActorProfilePage({
           </div>
         </section>
 
-        {/* ── Featured reel ─────────────────────────────────────── */}
-        {featuredMedia && (
+        {/* ── Video clips ───────────────────────────────────────── */}
+        {media.length > 0 && (
           <section className="panel">
-            <div className="panel-heading">
+            <div className="panel-heading" style={{ marginBottom: 4 }}>
               <div>
-                <p className="eyebrow">Demo Reel</p>
-                <h3>{featuredMedia.title ?? "Featured clip"}</h3>
+                <p className="eyebrow">Clips</p>
+                <h3>
+                  {media.length} clip{media.length !== 1 ? "s" : ""}
+                </h3>
               </div>
-              {featuredMedia.duration && (
-                <span className="muted-copy">
-                  {Math.round(featuredMedia.duration)}s
-                </span>
-              )}
+              <span className="muted-copy">Click any clip to watch</span>
             </div>
-            <MuxPlayer
-              playbackId={featuredMedia.mux_playback_id}
-              title={featuredMedia.title ?? actor.full_name}
-              thumbnail={featuredMedia.thumbnail_url ?? undefined}
-            />
-          </section>
-        )}
-
-        {/* ── Additional clips ──────────────────────────────────── */}
-        {otherClips.length > 0 && (
-          <section className="panel">
-            <div className="panel-heading">
-              <div>
-                <p className="eyebrow">Audition Clips</p>
-                <h3>More from {actor.full_name.split(" ")[0]}</h3>
-              </div>
-              <span className="muted-copy">
-                {otherClips.length} clip{otherClips.length !== 1 ? "s" : ""}
-              </span>
-            </div>
-            <div className="clip-grid">
-              {otherClips.map((clip) => (
-                <article className="clip-card" key={clip.id}>
-                  <MuxPlayer
-                    playbackId={clip.mux_playback_id}
-                    title={clip.title ?? undefined}
-                    thumbnail={clip.thumbnail_url ?? undefined}
-                    className="clip-video"
-                  />
-                  <div className="clip-copy">
-                    <h4>{clip.title ?? "Untitled clip"}</h4>
-                    {clip.duration && (
-                      <p>{Math.round(clip.duration)}s</p>
-                    )}
-                  </div>
-                </article>
-              ))}
-            </div>
+            <VideoGrid media={media} />
           </section>
         )}
 
@@ -139,6 +99,7 @@ export default async function ActorProfilePage({
             </p>
           </section>
         )}
+
       </div>
     </AppShell>
   );

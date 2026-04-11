@@ -8,14 +8,18 @@ import { createClient } from "@/lib/supabase/client";
 
 const publicNav: { href: Route; label: string }[] = [
   { href: "/discovery", label: "Discovery" },
-  { href: "/roles/new", label: "Post a Role" }
 ];
 
-const authNav: { href: Route; label: string }[] = [
+const actorNav: { href: Route; label: string }[] = [
   { href: "/discovery", label: "Discovery" },
   { href: "/profile/edit", label: "My Profile" },
   { href: "/profile/media", label: "Media Library" },
-  { href: "/roles/new", label: "Post a Role" }
+];
+
+const cdNav: { href: Route; label: string }[] = [
+  { href: "/discovery", label: "Discovery" },
+  { href: "/shortlist", label: "Shortlist" },
+  { href: "/roles/new", label: "Post a Role" },
 ];
 
 export function AppShell({
@@ -33,16 +37,43 @@ export function AppShell({
   const router = useRouter();
   const supabase = createClient();
   const [user, setUser] = useState<{ email?: string } | null>(null);
+  const [accountType, setAccountType] = useState<"actor" | "casting_director" | null>(null);
   const [loadingUser, setLoadingUser] = useState(true);
 
+  async function loadUser() {
+    const { data } = await supabase.auth.getUser();
+    const authUser = data.user ?? null;
+    setUser(authUser);
+    if (authUser) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("account_type")
+        .eq("id", authUser.id)
+        .single();
+      setAccountType((profile?.account_type as "actor" | "casting_director") ?? null);
+    } else {
+      setAccountType(null);
+    }
+    setLoadingUser(false);
+  }
+
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user ?? null);
-      setLoadingUser(false);
-    });
+    loadUser();
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+      if (session?.user) {
+        supabase
+          .from("profiles")
+          .select("account_type")
+          .eq("id", session.user.id)
+          .single()
+          .then(({ data: profile }) => {
+            setAccountType((profile?.account_type as "actor" | "casting_director") ?? null);
+          });
+      } else {
+        setAccountType(null);
+      }
     });
 
     return () => listener.subscription.unsubscribe();
@@ -54,7 +85,11 @@ export function AppShell({
     router.refresh();
   }
 
-  const navItems = user ? authNav : publicNav;
+  const navItems = user
+    ? accountType === "casting_director"
+      ? cdNav
+      : actorNav
+    : publicNav;
 
   return (
     <div className="app-frame">
