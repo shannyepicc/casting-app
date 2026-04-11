@@ -3,6 +3,7 @@ export type UserType = "actor" | "casting_director";
 export type Profile = {
   id: string;
   account_type: UserType;
+  username: string | null;
   full_name: string | null;
   bio: string | null;
   location: string | null;

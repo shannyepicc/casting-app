@@ -570,6 +570,13 @@ video {
   font-size: 0.88rem;
 }
 
+/* Language pills — same shape, neutral tone */
+.tag-lang {
+  background: rgba(71, 53, 36, 0.06);
+  border-color: rgba(71, 53, 36, 0.12);
+  color: var(--muted);
+}
+
 .profile-layout,
 .role-layout {
   grid-template-columns: 1fr;
@@ -904,6 +911,133 @@ video {
   gap: 6px;
   text-align: center;
   padding: 24px;
+}
+
+/* ============================================================
+   Avatar placeholders (no headshot uploaded)
+   ============================================================ */
+.actor-avatar-placeholder {
+  background: linear-gradient(135deg, rgba(182, 90, 49, 0.12), rgba(182, 90, 49, 0.04));
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: -0.04em;
+  width: 100%;
+  height: 100%;
+}
+
+.profile-avatar-lg {
+  font-size: 4rem;
+  min-height: 320px;
+}
+
+/* ============================================================
+   Discovery empty state
+   ============================================================ */
+.discovery-empty {
+  text-align: center;
+  padding: 64px 40px;
+}
+
+.discovery-empty h3 {
+  margin: 10px 0 12px;
+}
+
+.discovery-empty .muted-copy {
+  max-width: 440px;
+  margin: 0 auto;
+}
+
+/* ============================================================
+   Profile URL link (profile edit sidebar)
+   ============================================================ */
+.profile-url-link {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 1px solid rgba(182, 90, 49, 0.18);
+  border-radius: 10px;
+  padding: 8px 14px;
+  word-break: break-all;
+  transition: background 140ms ease;
+}
+
+.profile-url-link:hover {
+  background: rgba(182, 90, 49, 0.14);
+}
+
+/* ============================================================
+   Tag input
+   ============================================================ */
+.tag-input-box {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  min-height: 50px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.9);
+  cursor: text;
+  transition: border-color 140ms ease;
+}
+
+.tag-input-box:focus-within {
+  border-color: var(--line-strong);
+  outline: none;
+}
+
+.tag-input-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px 5px 12px;
+  border-radius: 999px;
+  background: rgba(182, 90, 49, 0.1);
+  border: 1px solid rgba(182, 90, 49, 0.2);
+  color: var(--accent-strong);
+  font-size: 0.88rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.tag-input-remove {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--accent);
+  font-size: 1rem;
+  line-height: 1;
+  opacity: 0.7;
+  transition: opacity 120ms ease;
+}
+
+.tag-input-remove:hover {
+  opacity: 1;
+}
+
+.tag-input-field {
+  flex: 1;
+  min-width: 140px;
+  border: none;
+  background: transparent;
+  outline: none;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--text);
+  padding: 2px 0;
+}
+
+.tag-input-field::placeholder {
+  color: rgba(111, 100, 90, 0.6);
 }
 
 /* ============================================================

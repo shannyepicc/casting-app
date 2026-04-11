@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
+import { TagInput } from "@/components/tag-input";
 import { createClient } from "@/lib/supabase/client";
+import { toUsername, toUsernameWithSuffix } from "@/lib/utils/username";
 import type { Profile } from "@/lib/types";
 
 const UNION_OPTIONS = ["SAG-AFTRA", "AEA", "Non-Union", "Fi-Core"];
@@ -102,17 +104,43 @@ export default function ProfileEditPage() {
     } = await supabase.auth.getUser();
     if (!user) return;
 
-    const { error } = await supabase
+    // Auto-generate a username if this actor doesn't have one yet
+    let updates: Partial<Profile> = { ...profile, onboarding_complete: true };
+
+    if (!profile.username && profile.full_name && profile.account_type === "actor") {
+      const candidate = toUsername(profile.full_name);
+      updates.username = candidate;
+    }
+
+    const { error: saveError } = await supabase
       .from("profiles")
-      .update({ ...profile, onboarding_complete: true })
+      .update(updates)
       .eq("id", user.id);
 
-    if (error) {
-      setError(error.message);
-    } else {
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2500);
+    // If username already taken, retry with a random suffix
+    if (saveError?.code === "23505" && profile.full_name) {
+      updates.username = toUsernameWithSuffix(profile.full_name);
+      const { error: retryError } = await supabase
+        .from("profiles")
+        .update(updates)
+        .eq("id", user.id);
+
+      if (retryError) {
+        setError(retryError.message);
+        setSaving(false);
+        return;
+      }
+    } else if (saveError) {
+      setError(saveError.message);
+      setSaving(false);
+      return;
     }
+
+    // Reflect the saved username in local state
+    if (updates.username) set("username", updates.username);
+
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2500);
     setSaving(false);
   }
 
@@ -263,30 +291,27 @@ export default function ProfileEditPage() {
                   </div>
                 </div>
                 <div className="field">
-                  <span>Languages (comma-separated)</span>
-                  <input
-                    type="text"
-                    placeholder="English, Spanish, French"
-                    value={(profile.languages ?? []).join(", ")}
-                    onChange={(e) => setList("languages", e.target.value)}
+                  <span>Languages</span>
+                  <TagInput
+                    value={profile.languages ?? []}
+                    onChange={(tags) => set("languages", tags)}
+                    placeholder="English, Spanish… press Space to add"
                   />
                 </div>
                 <div className="field">
-                  <span>Skills (comma-separated)</span>
-                  <input
-                    type="text"
-                    placeholder="Stage combat, Dialects, Improv"
-                    value={(profile.skills ?? []).join(", ")}
-                    onChange={(e) => setList("skills", e.target.value)}
+                  <span>Skills</span>
+                  <TagInput
+                    value={profile.skills ?? []}
+                    onChange={(tags) => set("skills", tags)}
+                    placeholder="Stage combat, Improv… press Space to add"
                   />
                 </div>
                 <div className="field">
-                  <span>Tags (comma-separated)</span>
-                  <input
-                    type="text"
-                    placeholder="dramatic, comedic, action"
-                    value={(profile.tags ?? []).join(", ")}
-                    onChange={(e) => setList("tags", e.target.value)}
+                  <span>Tags</span>
+                  <TagInput
+                    value={profile.tags ?? []}
+                    onChange={(tags) => set("tags", tags)}
+                    placeholder="Dramatic, comedic… press Space to add"
                   />
                 </div>
               </div>
@@ -330,8 +355,27 @@ export default function ProfileEditPage() {
           </button>
         </div>
 
-        {/* Sidebar hint */}
-        <div className="sticky-panel">
+        {/* Sidebar */}
+        <div className="sticky-panel" style={{ display: "grid", gap: 16 }}>
+          {/* Public profile URL — shown once username is set */}
+          {profile.username && accountType === "actor" && (
+            <div className="panel">
+              <p className="eyebrow">Your public profile</p>
+              <h3 style={{ fontSize: "1.1rem" }}>Shareable link</h3>
+              <a
+                href={`/actors/${profile.username}`}
+                target="_blank"
+                rel="noreferrer"
+                className="profile-url-link"
+              >
+                /actors/{profile.username}
+              </a>
+              <p className="muted-copy" style={{ marginTop: 8, fontSize: "0.86rem" }}>
+                This is what casting directors see. Share it directly.
+              </p>
+            </div>
+          )}
+
           <div className="panel">
             <p className="eyebrow">Next step</p>
             <h3>Add your media</h3>

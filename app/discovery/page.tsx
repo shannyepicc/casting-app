@@ -1,57 +1,65 @@
-import { ActorCard } from "@/components/actor-card";
 import { AppShell } from "@/components/app-shell";
 import { FilterSidebar } from "@/components/filter-sidebar";
-import { actors, featuredRole } from "@/lib/mock-data";
+import { ProfileCard } from "@/components/profile-card";
+import { getActorsForDiscovery } from "@/lib/supabase/queries";
 
-export default function DiscoveryPage() {
+// Always fetch fresh — new actors should show up immediately
+export const dynamic = "force-dynamic";
+
+export default async function DiscoveryPage() {
+  const actors = await getActorsForDiscovery();
+
+  const withHeadshot = actors.filter((a) => a.headshot_url).length;
+
   return (
     <AppShell
       eyebrow="Casting Dashboard"
       title="Actor discovery built around watchable signal"
       actions={
-        <>
-          <input className="search-input" placeholder="Search actors, tags, or traits..." aria-label="Search actors" />
-          <button className="ghost-button">Sort: Relevance</button>
-        </>
+        <input
+          className="search-input"
+          placeholder="Search actors, tags, or traits..."
+          aria-label="Search actors"
+        />
       }
     >
       <section className="dashboard-grid">
         <FilterSidebar />
 
         <div className="dashboard-main">
-          <section className="hero-banner">
-            <div>
-              <p className="eyebrow">Featured Role</p>
-              <h3>{featuredRole.title}</h3>
-              <p>{featuredRole.description}</p>
-            </div>
-            <div className="hero-banner-meta">
-              <span>{featuredRole.location}</span>
-              <span>{featuredRole.ageRange}</span>
-              <span>{featuredRole.rate}</span>
-            </div>
-          </section>
-
+          {/* Live stats */}
           <div className="stats-strip">
             <div>
-              <strong>247</strong>
-              <span>active actors</span>
+              <strong>{actors.length}</strong>
+              <span>actors in network</span>
             </div>
             <div>
-              <strong>39</strong>
-              <span>ready-to-watch clips</span>
+              <strong>{withHeadshot}</strong>
+              <span>with headshots</span>
             </div>
             <div>
-              <strong>12</strong>
-              <span>new matches today</span>
+              <strong>{actors.length}</strong>
+              <span>profiles available</span>
             </div>
           </div>
 
-          <section className="card-grid">
-            {actors.map((actor, index) => (
-              <ActorCard key={actor.id} actor={actor} featured={index === 0} />
-            ))}
-          </section>
+          {/* Actor grid or empty state */}
+          {actors.length === 0 ? (
+            <div className="panel discovery-empty">
+              <p className="eyebrow">No actors yet</p>
+              <h3>The network is waiting</h3>
+              <p className="muted-copy">
+                Actors who sign up, complete their profiles, and mark themselves available will appear
+                here. Invite talent to join the platform to get started.
+              </p>
+            </div>
+          ) : (
+            <section className="card-grid">
+              {actors.map((actor, index) => (
+                <ProfileCard key={actor.id} actor={actor} featured={index === 0} />
+              ))}
+            </section>
+          )}
         </div>
       </section>
     </AppShell>

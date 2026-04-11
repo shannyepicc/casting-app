@@ -1,4 +1,4 @@
--- Run this in the Supabase SQL Editor: https://supabase.com/dashboard/project/zrrsshqrrexvetqdrxfh/sql
+-- Run this in the Supabase SQL Editor
 
 -- ============================================================
 -- Profiles
