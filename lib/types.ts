@@ -1,5 +1,48 @@
 export type UserType = "actor" | "casting_director";
 
+export type Profile = {
+  id: string;
+  account_type: UserType;
+  full_name: string | null;
+  bio: string | null;
+  location: string | null;
+  headshot_url: string | null;
+  // Actor-specific
+  age: number | null;
+  gender: string | null;
+  union_status: string | null;
+  languages: string[];
+  skills: string[];
+  tags: string[];
+  availability: string | null;
+  // Casting director-specific
+  company: string | null;
+  job_title: string | null;
+  onboarding_complete: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type Media = {
+  id: string;
+  owner_id: string;
+  media_type: "headshot" | "video";
+  title: string | null;
+  mux_upload_id: string | null;
+  mux_asset_id: string | null;
+  mux_playback_id: string | null;
+  status: "pending" | "processing" | "ready" | "failed";
+  duration: number | null;
+  thumbnail_url: string | null;
+  storage_path: string | null;
+  storage_url: string | null;
+  is_public: boolean;
+  is_featured: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Actor = {
   id: string;
   slug: string;

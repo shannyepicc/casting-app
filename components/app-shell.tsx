@@ -1,12 +1,21 @@
+"use client";
+
 import type { Route } from "next";
 import Link from "next/link";
-import { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
-const navItems: { href: Route; label: string }[] = [
+const publicNav: { href: Route; label: string }[] = [
   { href: "/discovery", label: "Discovery" },
-  { href: "/actors/maya-reyes", label: "Actor Profile" },
-  { href: "/roles/new", label: "Post a Role" },
-  { href: "/roles/college-student-lead", label: "Role View" }
+  { href: "/roles/new", label: "Post a Role" }
+];
+
+const authNav: { href: Route; label: string }[] = [
+  { href: "/discovery", label: "Discovery" },
+  { href: "/profile/edit", label: "My Profile" },
+  { href: "/profile/media", label: "Media Library" },
+  { href: "/roles/new", label: "Post a Role" }
 ];
 
 export function AppShell({
@@ -20,26 +29,57 @@ export function AppShell({
   eyebrow: string;
   actions?: ReactNode;
 }) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const supabase = createClient();
+  const [user, setUser] = useState<{ email?: string } | null>(null);
+  const [loadingUser, setLoadingUser] = useState(true);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data.user ?? null);
+      setLoadingUser(false);
+    });
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => listener.subscription.unsubscribe();
+  }, []);
+
+  async function handleSignOut() {
+    await supabase.auth.signOut();
+    router.push("/");
+    router.refresh();
+  }
+
+  const navItems = user ? authNav : publicNav;
+
   return (
     <div className="app-frame">
       <aside className="sidebar">
         <div className="sidebar-inner">
-          <div className="brand-block">
+          <Link href="/" className="brand-block" style={{ textDecoration: "none" }}>
             <div className="brand-mark">CA</div>
             <div className="brand-copy">
-              <p className="eyebrow">AI Casting Assistant</p>
+              <p className="eyebrow">Casting Assistant</p>
               <h1>Studio Console</h1>
             </div>
-          </div>
+          </Link>
 
           <div className="sidebar-status">
             <span className="status-dot" />
-            <span>MVP build • discovery-first workflow</span>
+            <span>{user ? user.email ?? "Signed in" : "Guest mode"}</span>
           </div>
 
           <nav className="sidebar-nav">
             {navItems.map((item, index) => (
-              <Link key={item.href} href={item.href}>
+              <Link
+                key={item.href}
+                href={item.href}
+                style={pathname === item.href ? { borderColor: "var(--line-strong)", background: "rgba(255,255,255,0.88)" } : {}}
+              >
                 <span className="nav-index">{`0${index + 1}`}</span>
                 <span>{item.label}</span>
               </Link>
@@ -47,9 +87,29 @@ export function AppShell({
           </nav>
 
           <div className="sidebar-card">
-            <p className="sidebar-label">Current focus</p>
-            <strong>Audition library + discovery</strong>
-            <span>Built for indie casting teams who need fast signal, not complicated software.</span>
+            {!loadingUser && (
+              <>
+                {user ? (
+                  <button
+                    className="ghost-button"
+                    style={{ width: "100%", fontSize: "0.88rem" }}
+                    onClick={handleSignOut}
+                  >
+                    Sign out
+                  </button>
+                ) : (
+                  <div style={{ display: "grid", gap: 10 }}>
+                    <p className="sidebar-label">Join the network</p>
+                    <Link href="/auth/signup" className="primary-button" style={{ textAlign: "center", fontSize: "0.88rem" }}>
+                      Create account
+                    </Link>
+                    <Link href="/auth/login" className="ghost-button" style={{ textAlign: "center", fontSize: "0.88rem" }}>
+                      Sign in
+                    </Link>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </div>
       </aside>
