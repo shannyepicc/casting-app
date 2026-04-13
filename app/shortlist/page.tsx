@@ -27,7 +27,7 @@ export default async function ShortlistPage() {
     .eq("id", authData.user.id)
     .single();
 
-  if (profile?.account_type !== "casting_director") redirect("/discovery");
+  if (profile?.account_type !== "creator") redirect("/discovery");
 
   // Fetch shortlisted actors with their profile data
   const { data: shortlistRows } = await supabase
@@ -76,7 +76,7 @@ export default async function ShortlistPage() {
 
   return (
     <AppShell
-      eyebrow="Casting Director"
+      eyebrow="Creator"
       title="My Shortlist"
     >
       {entries.length === 0 ? (

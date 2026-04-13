@@ -13,8 +13,8 @@ export default async function DiscoveryPage() {
 
   return (
     <AppShell
-      eyebrow="Casting Dashboard"
-      title="Actor discovery built around watchable signal"
+      eyebrow="Talent Network"
+      title="Find talent built around watchable signal"
       actions={
         <input
           className="search-input"

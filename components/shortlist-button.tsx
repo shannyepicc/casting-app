@@ -23,7 +23,7 @@ export function ShortlistButton({ actorId }: { actorId: string }) {
         .eq("id", user.id)
         .single();
 
-      if (profile?.account_type !== "casting_director") {
+      if (profile?.account_type !== "creator") {
         setLoading(false);
         return;
       }

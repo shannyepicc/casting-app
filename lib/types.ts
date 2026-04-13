@@ -1,4 +1,4 @@
-export type UserType = "actor" | "casting_director";
+export type UserType = "actor" | "creator";
 
 export type Profile = {
   id: string;
@@ -12,11 +12,12 @@ export type Profile = {
   age: number | null;
   gender: string | null;
   union_status: string | null;
+  talent_type: string[];
   languages: string[];
   skills: string[];
   tags: string[];
   availability: string | null;
-  // Casting director-specific
+  // Creator-specific
   company: string | null;
   job_title: string | null;
   onboarding_complete: boolean;

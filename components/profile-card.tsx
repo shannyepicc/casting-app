@@ -45,6 +45,13 @@ export function ProfileCard({
 
       {/* Body */}
       <div className="actor-body">
+        {actor.talent_type?.length > 0 && (
+          <div className="talent-type-row">
+            {actor.talent_type.map((t) => (
+              <span key={t} className="talent-type-badge">{t}</span>
+            ))}
+          </div>
+        )}
         <div className="actor-header">
           <div>
             <h3>{actor.full_name}</h3>

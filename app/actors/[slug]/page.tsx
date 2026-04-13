@@ -48,7 +48,15 @@ export default async function ActorProfilePage({
           )}
 
           <div className="profile-copy">
-            <p className="eyebrow">Actor Profile</p>
+            {actor.talent_type?.length > 0 ? (
+              <div className="talent-type-row" style={{ marginBottom: 8 }}>
+                {actor.talent_type.map((t) => (
+                  <span key={t} className="talent-type-badge">{t}</span>
+                ))}
+              </div>
+            ) : (
+              <p className="eyebrow">Actor Profile</p>
+            )}
             {ageParts && <h3>{ageParts}</h3>}
             {actor.bio && <p>{actor.bio}</p>}
 

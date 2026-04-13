@@ -8,18 +8,21 @@ import { createClient } from "@/lib/supabase/client";
 
 const publicNav: { href: Route; label: string }[] = [
   { href: "/discovery", label: "Discovery" },
+  { href: "/roles",     label: "Browse Roles" },
 ];
 
 const actorNav: { href: Route; label: string }[] = [
-  { href: "/discovery", label: "Discovery" },
+  { href: "/discovery",    label: "Discovery" },
+  { href: "/roles",        label: "Browse Roles" },
   { href: "/profile/edit", label: "My Profile" },
   { href: "/profile/media", label: "Media Library" },
 ];
 
 const cdNav: { href: Route; label: string }[] = [
-  { href: "/discovery", label: "Discovery" },
-  { href: "/shortlist", label: "Shortlist" },
-  { href: "/roles/new", label: "Post a Role" },
+  { href: "/discovery",    label: "Discovery" },
+  { href: "/shortlist",    label: "Shortlist" },
+  { href: "/profile/roles", label: "My Roles" },
+  { href: "/roles/new",    label: "Post a Role" },
 ];
 
 export function AppShell({
@@ -37,7 +40,7 @@ export function AppShell({
   const router = useRouter();
   const supabase = createClient();
   const [user, setUser] = useState<{ email?: string } | null>(null);
-  const [accountType, setAccountType] = useState<"actor" | "casting_director" | null>(null);
+  const [accountType, setAccountType] = useState<"actor" | "creator" | null>(null);
   const [loadingUser, setLoadingUser] = useState(true);
 
   async function loadUser() {
@@ -50,7 +53,7 @@ export function AppShell({
         .select("account_type")
         .eq("id", authUser.id)
         .single();
-      setAccountType((profile?.account_type as "actor" | "casting_director") ?? null);
+      setAccountType((profile?.account_type as "actor" | "creator") ?? null);
     } else {
       setAccountType(null);
     }
@@ -69,7 +72,7 @@ export function AppShell({
           .eq("id", session.user.id)
           .single()
           .then(({ data: profile }) => {
-            setAccountType((profile?.account_type as "actor" | "casting_director") ?? null);
+            setAccountType((profile?.account_type as "actor" | "creator") ?? null);
           });
       } else {
         setAccountType(null);
@@ -86,7 +89,7 @@ export function AppShell({
   }
 
   const navItems = user
-    ? accountType === "casting_director"
+    ? accountType === "creator"
       ? cdNav
       : actorNav
     : publicNav;

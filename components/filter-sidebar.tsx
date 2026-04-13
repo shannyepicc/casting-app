@@ -1,5 +1,9 @@
 const filterGroups = [
   {
+    title: "Talent Type",
+    items: ["Actor", "Host / Presenter", "Dancer", "Musician", "Voice Artist", "Model", "Content Creator"]
+  },
+  {
     title: "Age Range",
     items: ["18-24", "24-30", "27-34", "30-42"]
   },
@@ -9,11 +13,11 @@ const filterGroups = [
   },
   {
     title: "Location",
-    items: ["Los Angeles", "Berkeley", "Oakland", "Remote"]
+    items: ["Los Angeles", "New York", "San Francisco", "Remote"]
   },
   {
     title: "Tags",
-    items: ["Comedy", "Drama", "College Student", "Authority", "Action"]
+    items: ["Comedy", "Drama", "Improv", "Action", "Voice"]
   }
 ];
 
@@ -22,13 +26,13 @@ export function FilterSidebar() {
     <section className="filter-panel">
       <div className="filter-panel-header">
         <p className="eyebrow">Filter Stack</p>
-        <h3>Find actors fast</h3>
+        <h3>Find talent fast</h3>
         <span>Keep it manual for now. This is the surface where your future matching logic gets smarter.</span>
       </div>
 
       <div className="filter-highlight">
-        <strong>Curated for indie casting</strong>
-        <p>Use lightweight traits, not bloated recruiting filters. Every control should sharpen watchability.</p>
+        <strong>Curated for any production</strong>
+        <p>Filter by talent type, traits, and availability. Every control should sharpen who you find.</p>
       </div>
 
       {filterGroups.map((group) => (

@@ -10,6 +10,16 @@ import type { Profile } from "@/lib/types";
 
 const UNION_OPTIONS = ["SAG-AFTRA", "AEA", "Non-Union", "Fi-Core"];
 const GENDER_OPTIONS = ["Male", "Female", "Non-binary", "Other", "Prefer not to say"];
+const TALENT_TYPES = [
+  "Actor",
+  "Host / Presenter",
+  "Dancer",
+  "Musician",
+  "Voice Artist",
+  "Model",
+  "Content Creator",
+  "Background / Extra",
+];
 
 export default function ProfileEditPage() {
   const router = useRouter();
@@ -17,7 +27,7 @@ export default function ProfileEditPage() {
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [profile, setProfile] = useState<Partial<Profile>>({});
-  const [accountType, setAccountType] = useState<"actor" | "casting_director" | null>(null);
+  const [accountType, setAccountType] = useState<"actor" | "creator" | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploadingHeadshot, setUploadingHeadshot] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -154,7 +164,7 @@ export default function ProfileEditPage() {
 
   return (
     <AppShell
-      eyebrow={accountType === "actor" ? "Actor Profile" : "Casting Director Profile"}
+      eyebrow={accountType === "actor" ? "Actor Profile" : "Creator Profile"}
       title="Edit Profile"
       actions={
         <button className="ghost-button" onClick={() => router.push("/profile/media")}>
@@ -238,6 +248,27 @@ export default function ProfileEditPage() {
               <p className="eyebrow">Actor Details</p>
               <h3>Your acting profile</h3>
               <div className="role-form" style={{ marginTop: 18 }}>
+                <div className="field">
+                  <span className="field-label">Talent Type <span className="muted-copy" style={{ fontWeight: 400 }}>(select all that apply)</span></span>
+                  <div className="pill-select" style={{ marginTop: 8 }}>
+                    {TALENT_TYPES.map((t) => (
+                      <button
+                        key={t}
+                        type="button"
+                        className={(profile.talent_type ?? []).includes(t) ? "pill-option active" : "pill-option"}
+                        onClick={() => {
+                          const current = profile.talent_type ?? [];
+                          const updated = current.includes(t)
+                            ? current.filter((x) => x !== t)
+                            : [...current, t];
+                          set("talent_type", updated);
+                        }}
+                      >
+                        {t}
+                      </button>
+                    ))}
+                  </div>
+                </div>
                 <div className="form-grid">
                   <div className="field">
                     <span>Age</span>
@@ -319,7 +350,7 @@ export default function ProfileEditPage() {
           )}
 
           {/* Casting director-specific fields */}
-          {accountType === "casting_director" && (
+          {accountType === "creator" && (
             <div className="panel">
               <p className="eyebrow">Director Details</p>
               <h3>Your company profile</h3>

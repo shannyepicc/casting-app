@@ -9,13 +9,13 @@ const roles: { type: UserType; label: string; description: string; icon: string 
   {
     type: "actor",
     label: "Actor",
-    description: "Create a profile, upload your headshots and demo reels, and get discovered by casting directors.",
+    description: "Create a profile, upload your headshots and demo reels, and get discovered by creators and directors.",
     icon: "🎭"
   },
   {
-    type: "casting_director",
-    label: "Casting Director",
-    description: "Browse actor profiles, watch audition clips, and build your shortlists for productions.",
+    type: "creator",
+    label: "Creator",
+    description: "Post roles for any project — films, YouTube, music videos, brand work. Find and book talent fast.",
     icon: "🎬"
   }
 ];
