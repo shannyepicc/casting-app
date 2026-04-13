@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { type SearchFilters, getAgeRange } from "@/lib/utils/search-params";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -32,13 +33,15 @@ export type ActorMedia = {
 // ─── Queries ──────────────────────────────────────────────────────────────────
 
 /**
- * Fetch all discoverable actors.
+ * Fetch discoverable actors with optional search filters.
  * Requires: account_type = actor, onboarding_complete, username and full_name set.
  */
-export async function getActorsForDiscovery(): Promise<ActorProfile[]> {
+export async function getActorsForDiscovery(
+  filters: SearchFilters = {}
+): Promise<ActorProfile[]> {
   const supabase = await createClient();
 
-  const { data } = await supabase
+  let query = supabase
     .from("profiles")
     .select(
       "id, username, full_name, bio, location, headshot_url, age, gender, union_status, talent_type, languages, skills, tags, availability"
@@ -46,8 +49,47 @@ export async function getActorsForDiscovery(): Promise<ActorProfile[]> {
     .eq("account_type", "actor")
     .eq("onboarding_complete", true)
     .not("username", "is", null)
-    .not("full_name", "is", null)
-    .order("created_at", { ascending: false });
+    .not("full_name", "is", null);
+
+  // ── Talent type (array overlap) ──────────────────────────────────────────
+  if (filters.type?.length) {
+    query = query.overlaps("talent_type", filters.type);
+  }
+
+  // ── Age range ────────────────────────────────────────────────────────────
+  if (filters.age) {
+    const range = getAgeRange(filters.age);
+    if (range) {
+      query = query.gte("age", range.min).lte("age", range.max);
+    }
+  }
+
+  // ── Gender ───────────────────────────────────────────────────────────────
+  if (filters.gender) {
+    query = query.eq("gender", filters.gender);
+  }
+
+  // ── Location (partial match, case-insensitive) ────────────────────────────
+  if (filters.location) {
+    query = query.ilike("location", `%${filters.location}%`);
+  }
+
+  // ── Tags / skills (overlap on either array) ──────────────────────────────
+  if (filters.tags?.length) {
+    query = query.or(
+      `tags.ov.{${filters.tags.join(",")}},skills.ov.{${filters.tags.join(",")}}`
+    );
+  }
+
+  // ── Text search ───────────────────────────────────────────────────────────
+  if (filters.q) {
+    const q = filters.q.replace(/'/g, "''"); // basic escape
+    query = query.or(
+      `full_name.ilike.%${q}%,bio.ilike.%${q}%`
+    );
+  }
+
+  const { data } = await query.order("created_at", { ascending: false });
 
   return (data ?? []) as ActorProfile[];
 }
@@ -183,6 +225,43 @@ export async function getRolesByCd(cdId: string): Promise<RoleWithCount[]> {
   }
 
   return roles.map((r) => ({ ...r, applicant_count: countMap[r.id] ?? 0 })) as RoleWithCount[];
+}
+
+// ─── Actor Application Types ──────────────────────────────────────────────────
+
+export type ActorApplication = {
+  id: string;
+  created_at: string;
+  role: {
+    id: string;
+    title: string;
+    project_name: string | null;
+    project_type: string | null;
+    status: "open" | "closed";
+    deadline: string | null;
+    compensation: string | null;
+  };
+};
+
+/** All applications submitted by an actor, newest first. */
+export async function getApplicationsByActor(
+  actorId: string
+): Promise<ActorApplication[]> {
+  const supabase = await createClient();
+
+  const { data } = await supabase
+    .from("applications")
+    .select(`
+      id,
+      created_at,
+      role:role_id (
+        id, title, project_name, project_type, status, deadline, compensation
+      )
+    `)
+    .eq("actor_id", actorId)
+    .order("created_at", { ascending: false });
+
+  return ((data ?? []).filter((r) => r.role)) as unknown as ActorApplication[];
 }
 
 /** Applicants for a role (CD-only, enforced by RLS). */

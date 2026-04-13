@@ -7,6 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import {
   Clapperboard,
+  LayoutDashboard,
   Compass,
   Briefcase,
   User,
@@ -23,6 +24,7 @@ const publicNav: { href: Route; label: string; Icon: LucideIcon }[] = [
 ];
 
 const actorNav: { href: Route; label: string; Icon: LucideIcon }[] = [
+  { href: "/dashboard",     label: "Dashboard",     Icon: LayoutDashboard },
   { href: "/discovery",     label: "Discovery",     Icon: Compass },
   { href: "/roles",         label: "Browse Roles",  Icon: Briefcase },
   { href: "/profile/edit",  label: "My Profile",    Icon: User },
