@@ -1,5 +1,21 @@
 import Link from "next/link";
 import type { Role } from "@/lib/supabase/queries";
+import {
+  Film,
+  Clapperboard,
+  PlayCircle,
+  Music,
+  Tv,
+  Sparkles,
+  Monitor,
+  Mic,
+  Camera,
+  Gamepad2,
+  Users,
+  MoreHorizontal,
+  Star,
+  type LucideIcon,
+} from "lucide-react";
 
 const PROJECT_TYPE_LABELS: Record<string, string> = {
   short_film:  "Short Film",
@@ -15,6 +31,22 @@ const PROJECT_TYPE_LABELS: Record<string, string> = {
   gaming:      "Gaming / Streaming",
   theatre:     "Theatre",
   other:       "Other",
+};
+
+const PROJECT_TYPE_ICONS: Record<string, LucideIcon> = {
+  short_film:  Film,
+  feature:     Clapperboard,
+  youtube:     PlayCircle,
+  music_video: Music,
+  commercial:  Sparkles,
+  brand:       Star,
+  tv:          Tv,
+  web_series:  Monitor,
+  podcast:     Mic,
+  photography: Camera,
+  gaming:      Gamepad2,
+  theatre:     Users,
+  other:       MoreHorizontal,
 };
 
 const COMP_LABELS: Record<string, string> = {
@@ -45,12 +77,15 @@ export function RoleCard({ role, applicantCount }: { role: Role; applicantCount?
 
   const genderLabel = role.gender?.join(" / ") ?? null;
 
+  const TypeIcon = role.project_type ? PROJECT_TYPE_ICONS[role.project_type] : null;
+
   return (
     <Link href={`/roles/${role.id}`} className={`role-card${closed ? " role-card--closed" : ""}`}>
       <div className="role-card-top">
         <div className="role-card-badges">
           {role.project_type && (
             <span className="role-type-badge">
+              {TypeIcon && <TypeIcon size={10} />}
               {PROJECT_TYPE_LABELS[role.project_type] ?? role.project_type}
             </span>
           )}

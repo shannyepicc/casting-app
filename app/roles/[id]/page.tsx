@@ -6,6 +6,7 @@ import { getRoleById } from "@/lib/supabase/queries";
 import { isEffectivelyClosed, isExpired } from "@/components/role-card";
 import { createClient } from "@/lib/supabase/server";
 import { closeRole, reopenRole } from "@/app/actions/roles";
+import { MapPin, DollarSign, CalendarDays, Clock, Shield, UserCircle, Users } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -105,42 +106,63 @@ export default async function RoleDetailPage({ params }: { params: Promise<{ id:
               <p className="eyebrow" style={{ marginBottom: 14 }}>Role Details</p>
               <div className="detail-stack">
                 <div className="detail-row">
-                  <span className="detail-label">Age Range</span>
+                  <span className="detail-label">
+                    <UserCircle size={12} />
+                    Age Range
+                  </span>
                   <strong>{ageRange}</strong>
                 </div>
                 {role.gender && role.gender.length > 0 && (
                   <div className="detail-row">
-                    <span className="detail-label">Gender</span>
+                    <span className="detail-label">
+                      <Users size={12} />
+                      Gender
+                    </span>
                     <strong>{role.gender.join(" / ")}</strong>
                   </div>
                 )}
                 {role.union_status && (
                   <div className="detail-row">
-                    <span className="detail-label">Union</span>
+                    <span className="detail-label">
+                      <Shield size={12} />
+                      Union
+                    </span>
                     <strong>{UNION_LABELS[role.union_status] ?? role.union_status}</strong>
                   </div>
                 )}
                 {role.location && (
                   <div className="detail-row">
-                    <span className="detail-label">Location</span>
+                    <span className="detail-label">
+                      <MapPin size={12} />
+                      Location
+                    </span>
                     <strong>{role.location}</strong>
                   </div>
                 )}
                 {role.compensation && (
                   <div className="detail-row">
-                    <span className="detail-label">Compensation</span>
+                    <span className="detail-label">
+                      <DollarSign size={12} />
+                      Compensation
+                    </span>
                     <strong>{COMP_LABELS[role.compensation] ?? role.compensation}</strong>
                   </div>
                 )}
                 {role.shoot_dates && (
                   <div className="detail-row">
-                    <span className="detail-label">Shoot Dates</span>
+                    <span className="detail-label">
+                      <CalendarDays size={12} />
+                      Shoot Dates
+                    </span>
                     <strong>{role.shoot_dates}</strong>
                   </div>
                 )}
                 {role.deadline && (
                   <div className="detail-row">
-                    <span className="detail-label">Deadline</span>
+                    <span className="detail-label">
+                      <Clock size={12} />
+                      Deadline
+                    </span>
                     <strong className={expired ? "text-expired" : ""}>
                       {new Date(role.deadline).toLocaleDateString("en-US", {
                         month: "long", day: "numeric", year: "numeric",
@@ -149,7 +171,10 @@ export default async function RoleDetailPage({ params }: { params: Promise<{ id:
                   </div>
                 )}
                 <div className="detail-row">
-                  <span className="detail-label">Posted</span>
+                  <span className="detail-label">
+                    <CalendarDays size={12} />
+                    Posted
+                  </span>
                   <strong>
                     {new Date(role.created_at).toLocaleDateString("en-US", {
                       month: "short", day: "numeric", year: "numeric",

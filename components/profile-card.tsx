@@ -1,5 +1,27 @@
 import Link from "next/link";
 import type { ActorProfile } from "@/lib/supabase/queries";
+import {
+  Star,
+  Mic,
+  Flame,
+  Music,
+  Headphones,
+  Camera,
+  Video,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
+
+const TALENT_TYPE_ICONS: Record<string, LucideIcon> = {
+  "Actor":             Star,
+  "Host / Presenter":  Mic,
+  "Dancer":            Flame,
+  "Musician":          Music,
+  "Voice Artist":      Headphones,
+  "Model":             Camera,
+  "Content Creator":   Video,
+  "Background / Extra":Users,
+};
 
 function initials(name: string) {
   return name
@@ -47,9 +69,15 @@ export function ProfileCard({
       <div className="actor-body">
         {actor.talent_type?.length > 0 && (
           <div className="talent-type-row">
-            {actor.talent_type.map((t) => (
-              <span key={t} className="talent-type-badge">{t}</span>
-            ))}
+            {actor.talent_type.map((t) => {
+              const TypeIcon = TALENT_TYPE_ICONS[t];
+              return (
+                <span key={t} className="talent-type-badge">
+                  {TypeIcon && <TypeIcon size={9} />}
+                  {t}
+                </span>
+              );
+            })}
           </div>
         )}
         <div className="actor-header">

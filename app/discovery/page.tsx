@@ -2,6 +2,7 @@ import { AppShell } from "@/components/app-shell";
 import { FilterSidebar } from "@/components/filter-sidebar";
 import { ProfileCard } from "@/components/profile-card";
 import { getActorsForDiscovery } from "@/lib/supabase/queries";
+import { Users, Camera, CheckCircle } from "lucide-react";
 
 // Always fetch fresh — new actors should show up immediately
 export const dynamic = "force-dynamic";
@@ -30,14 +31,17 @@ export default async function DiscoveryPage() {
           {/* Live stats */}
           <div className="stats-strip">
             <div>
+              <Users size={20} className="stats-icon" />
               <strong>{actors.length}</strong>
               <span>actors in network</span>
             </div>
             <div>
+              <Camera size={20} className="stats-icon" />
               <strong>{withHeadshot}</strong>
               <span>with headshots</span>
             </div>
             <div>
+              <CheckCircle size={20} className="stats-icon" />
               <strong>{actors.length}</strong>
               <span>profiles available</span>
             </div>

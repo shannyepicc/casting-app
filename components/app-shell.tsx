@@ -5,24 +5,35 @@ import Link from "next/link";
 import { useEffect, useState, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import {
+  Clapperboard,
+  Compass,
+  Briefcase,
+  User,
+  Film,
+  Bookmark,
+  ListChecks,
+  Plus,
+  type LucideIcon
+} from "lucide-react";
 
-const publicNav: { href: Route; label: string }[] = [
-  { href: "/discovery", label: "Discovery" },
-  { href: "/roles",     label: "Browse Roles" },
+const publicNav: { href: Route; label: string; Icon: LucideIcon }[] = [
+  { href: "/discovery", label: "Discovery",    Icon: Compass },
+  { href: "/roles",     label: "Browse Roles", Icon: Briefcase },
 ];
 
-const actorNav: { href: Route; label: string }[] = [
-  { href: "/discovery",    label: "Discovery" },
-  { href: "/roles",        label: "Browse Roles" },
-  { href: "/profile/edit", label: "My Profile" },
-  { href: "/profile/media", label: "Media Library" },
+const actorNav: { href: Route; label: string; Icon: LucideIcon }[] = [
+  { href: "/discovery",     label: "Discovery",     Icon: Compass },
+  { href: "/roles",         label: "Browse Roles",  Icon: Briefcase },
+  { href: "/profile/edit",  label: "My Profile",    Icon: User },
+  { href: "/profile/media", label: "Media Library", Icon: Film },
 ];
 
-const cdNav: { href: Route; label: string }[] = [
-  { href: "/discovery",    label: "Discovery" },
-  { href: "/shortlist",    label: "Shortlist" },
-  { href: "/profile/roles", label: "My Roles" },
-  { href: "/roles/new",    label: "Post a Role" },
+const cdNav: { href: Route; label: string; Icon: LucideIcon }[] = [
+  { href: "/discovery",     label: "Discovery",  Icon: Compass },
+  { href: "/shortlist",     label: "Shortlist",  Icon: Bookmark },
+  { href: "/profile/roles", label: "My Roles",   Icon: ListChecks },
+  { href: "/roles/new",     label: "Post a Role",Icon: Plus },
 ];
 
 export function AppShell({
@@ -99,10 +110,12 @@ export function AppShell({
       <aside className="sidebar">
         <div className="sidebar-inner">
           <Link href="/" className="brand-block" style={{ textDecoration: "none" }}>
-            <div className="brand-mark">CA</div>
+            <div className="brand-mark">
+              <Clapperboard size={24} />
+            </div>
             <div className="brand-copy">
-              <p className="eyebrow">Casting Assistant</p>
-              <h1>Studio Console</h1>
+              <p className="eyebrow">Platform</p>
+              <h1>Slate</h1>
             </div>
           </Link>
 
@@ -112,16 +125,19 @@ export function AppShell({
           </div>
 
           <nav className="sidebar-nav">
-            {navItems.map((item, index) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                style={pathname === item.href ? { borderColor: "var(--line-strong)", background: "rgba(255,255,255,0.88)" } : {}}
-              >
-                <span className="nav-index">{`0${index + 1}`}</span>
-                <span>{item.label}</span>
-              </Link>
-            ))}
+            {navItems.map((item) => {
+              const active = pathname === item.href;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  style={active ? { borderColor: "var(--line-strong)", background: "rgba(255,255,255,0.88)" } : {}}
+                >
+                  <item.Icon size={16} className="nav-icon" style={{ opacity: active ? 0.9 : 0.55 }} />
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
           </nav>
 
           <div className="sidebar-card">

@@ -3,22 +3,19 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import {
+  Clapperboard,
+  Star,
+  Mic,
+  Music,
+  Film,
+  Video,
+  Users,
+  PlayCircle,
+  Camera,
+  Tv,
+} from "lucide-react";
 import type { UserType } from "@/lib/types";
-
-const roles: { type: UserType; label: string; description: string; icon: string }[] = [
-  {
-    type: "actor",
-    label: "Actor",
-    description: "Create a profile, upload your headshots and demo reels, and get discovered by creators and directors.",
-    icon: "🎭"
-  },
-  {
-    type: "creator",
-    label: "Creator",
-    description: "Post roles for any project — films, YouTube, music videos, brand work. Find and book talent fast.",
-    icon: "🎬"
-  }
-];
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -60,25 +57,72 @@ export default function OnboardingPage() {
     <main className="auth-page">
       <div className="auth-panel onboarding-panel">
         <div className="auth-brand">
-          <div className="brand-mark">CA</div>
-          <p className="eyebrow">Casting Assistant</p>
+          <div className="brand-mark">
+            <Clapperboard size={22} />
+          </div>
+          <div className="brand-copy">
+            <p className="eyebrow">Platform</p>
+            <h1 style={{ margin: 0, fontSize: "1.4rem", lineHeight: 1 }}>Slate</h1>
+          </div>
         </div>
+
         <h2>How are you joining?</h2>
         <p className="auth-sub">Choose your role in the network. This shapes your experience.</p>
 
         <div className="role-cards">
-          {roles.map((role) => (
-            <button
-              key={role.type}
-              className={`role-card${selected === role.type ? " role-card-selected" : ""}`}
-              onClick={() => setSelected(role.type)}
-              type="button"
-            >
-              <span className="role-icon">{role.icon}</span>
-              <strong>{role.label}</strong>
-              <p>{role.description}</p>
-            </button>
-          ))}
+          {/* Actor card */}
+          <button
+            className={`role-card${selected === "actor" ? " role-card-selected" : ""}`}
+            onClick={() => setSelected("actor")}
+            type="button"
+          >
+            <div className="onboarding-icon-row">
+              <Star size={18} />
+              <Mic size={18} />
+              <Music size={18} />
+              <Video size={18} />
+            </div>
+            <strong>Actor / Talent</strong>
+            <p>
+              Create a profile, upload your headshots and demo reels, and get
+              discovered by creators and directors worldwide.
+            </p>
+            <div className="onboarding-talent-pills">
+              <span>Actor</span>
+              <span>Host</span>
+              <span>Dancer</span>
+              <span>Musician</span>
+              <span>Voice Artist</span>
+              <span>Model</span>
+            </div>
+          </button>
+
+          {/* Creator card */}
+          <button
+            className={`role-card${selected === "creator" ? " role-card-selected" : ""}`}
+            onClick={() => setSelected("creator")}
+            type="button"
+          >
+            <div className="onboarding-icon-row">
+              <Film size={18} />
+              <PlayCircle size={18} />
+              <Tv size={18} />
+              <Camera size={18} />
+            </div>
+            <strong>Creator / Director</strong>
+            <p>
+              Post roles for any project — films, YouTube, music videos, brand
+              work, theatre, and more. Find and book talent fast.
+            </p>
+            <div className="onboarding-talent-pills">
+              <span>Film</span>
+              <span>YouTube</span>
+              <span>Music Video</span>
+              <span>TV</span>
+              <span>Brand</span>
+              <span>Podcast</span>
+            </div>
+          </button>
         </div>
 
         {error && <p className="auth-error">{error}</p>}

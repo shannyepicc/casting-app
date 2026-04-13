@@ -54,7 +54,7 @@ export default async function ShortlistPage() {
     .eq("cd_id", authData.user.id)
     .order("created_at", { ascending: false });
 
-  const entries = (shortlistRows ?? []).filter((r) => r.actor) as Array<{
+  const entries = ((shortlistRows ?? []).filter((r) => r.actor) as unknown) as Array<{
     id: string;
     note: string | null;
     created_at: string;
