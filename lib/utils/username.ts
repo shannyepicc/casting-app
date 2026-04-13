@@ -1,7 +1,8 @@
 /**
  * Convert a full name into a URL-safe username slug.
- * "Maya Reyes" → "maya-reyes"
- * "D'Angelo Cruz" → "dangelo-cruz"
+ * "Maya Reyes"     → "maya-reyes"
+ * "D'Angelo Cruz"  → "dangelo-cruz"
+ * "Shanmukh Gakkani" → "shanmukh-gakkani"
  */
 export function toUsername(fullName: string): string {
   return fullName
@@ -12,11 +13,10 @@ export function toUsername(fullName: string): string {
 }
 
 /**
- * Append a random 4-digit suffix to handle username collisions.
- * "maya-reyes" → "maya-reyes-4821"
+ * Append an incrementing numeric suffix for collision handling.
+ * toUsernameWithSuffix("maya-reyes", 1) → "maya-reyes-1"
+ * toUsernameWithSuffix("maya-reyes", 2) → "maya-reyes-2"
  */
-export function toUsernameWithSuffix(fullName: string): string {
-  const base = toUsername(fullName);
-  const suffix = Math.floor(1000 + Math.random() * 9000);
-  return `${base}-${suffix}`;
+export function toUsernameWithSuffix(base: string, n: number): string {
+  return `${base}-${n}`;
 }

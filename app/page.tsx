@@ -15,6 +15,7 @@ import {
   Briefcase,
   BookMarked,
 } from "lucide-react";
+import { LandingNav } from "@/components/landing-nav";
 
 const productionTypes = [
   { Icon: Film,        label: "Short Film" },
@@ -34,21 +35,7 @@ export default function HomePage() {
     <div className="slate-landing">
 
       {/* ── Top nav ─────────────────────────────────────────────── */}
-      <header className="slate-nav">
-        <div className="brand-block" style={{ textDecoration: "none", pointerEvents: "none" }}>
-          <div className="brand-mark">
-            <Clapperboard size={22} />
-          </div>
-          <div className="brand-copy">
-            <p className="eyebrow">Platform</p>
-            <h1>Slate</h1>
-          </div>
-        </div>
-        <div className="slate-nav-actions">
-          <Link href="/auth/login" className="ghost-button">Sign in</Link>
-          <Link href="/auth/signup" className="primary-button">Get started</Link>
-        </div>
-      </header>
+      <LandingNav />
 
       {/* ── Hero ────────────────────────────────────────────────── */}
       <section className="slate-hero">

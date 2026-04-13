@@ -1451,6 +1451,15 @@ video {
   font-weight: 500;
 }
 
+.role-banner--info {
+  background: rgba(34, 56, 74, 0.07);
+  color: var(--navy);
+  border: 1px solid rgba(34, 56, 74, 0.15);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
 .role-banner--closed {
   background: rgba(182, 90, 49, 0.1);
   color: var(--accent-strong);
@@ -1490,6 +1499,15 @@ video {
 
 .text-expired {
   color: var(--accent);
+}
+
+/* ─── Role manage actions (Edit + Applicants side by side) ───────────────── */
+.role-manage-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: stretch;
+  flex-shrink: 0;
 }
 
 /* ─── CD My Roles Dashboard ───────────────────────────────────────────────── */

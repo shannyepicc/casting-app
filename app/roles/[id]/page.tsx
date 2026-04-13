@@ -6,7 +6,7 @@ import { getRoleById } from "@/lib/supabase/queries";
 import { isEffectivelyClosed, isExpired } from "@/components/role-card";
 import { createClient } from "@/lib/supabase/server";
 import { closeRole, reopenRole } from "@/app/actions/roles";
-import { MapPin, DollarSign, CalendarDays, Clock, Shield, UserCircle, Users } from "lucide-react";
+import { MapPin, DollarSign, CalendarDays, Clock, Shield, UserCircle, Users, Pencil } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -55,9 +55,12 @@ export default async function RoleDetailPage({ params }: { params: Promise<{ id:
       title={role.title}
       actions={
         isOwner ? (
-          <div style={{ display: "flex", gap: 10 }}>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <Link href={`/roles/${role.id}/applicants`} className="ghost-button">
               View Applicants
+            </Link>
+            <Link href={`/roles/${role.id}/edit`} className="ghost-button" style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <Pencil size={13} /> Edit
             </Link>
             <form action={closed && !expired ? reopenRole.bind(null, role.id) : closeRole.bind(null, role.id)}>
               <button type="submit" className="ghost-button">

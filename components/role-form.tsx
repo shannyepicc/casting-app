@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { createRole } from "@/app/actions/roles";
+import { createRole, updateRole } from "@/app/actions/roles";
+import type { Role } from "@/lib/supabase/queries";
 
 const PROJECT_TYPES = [
   { value: "short_film",   label: "Short Film" },
@@ -34,10 +35,24 @@ const COMP_OPTIONS = [
 
 const GENDER_OPTIONS = ["Woman", "Man", "Non-binary", "Any"];
 
-export function RoleForm() {
-  const [selectedGenders, setSelectedGenders] = useState<string[]>([]);
+interface RoleFormProps {
+  initialData?: Role;
+  mode?: "create" | "edit";
+}
+
+export function RoleForm({ initialData, mode = "create" }: RoleFormProps) {
+  const isEdit = mode === "edit";
+
+  const [selectedGenders, setSelectedGenders] = useState<string[]>(
+    initialData?.gender ?? []
+  );
   const [pending, setPending] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
+
+  // Deadline formatted as YYYY-MM-DD for the date input
+  const defaultDeadline = initialData?.deadline
+    ? initialData.deadline.slice(0, 10)
+    : "";
 
   function toggleGender(g: string) {
     if (g === "Any") {
@@ -55,10 +70,14 @@ export function RoleForm() {
     if (!formRef.current) return;
     setPending(true);
     const fd = new FormData(formRef.current);
-    // Inject gender multi-select (checkboxes aren't named inputs here)
+    // Inject gender multi-select
     selectedGenders.forEach((g) => fd.append("gender", g));
     try {
-      await createRole(fd);
+      if (isEdit && initialData) {
+        await updateRole(initialData.id, fd);
+      } else {
+        await createRole(fd);
+      }
     } catch {
       setPending(false);
     }
@@ -72,16 +91,25 @@ export function RoleForm() {
         <div className="form-grid-2">
           <label className="field">
             <span>Role Title *</span>
-            <input name="title" required placeholder="Lead Female, 20s Drama" />
+            <input
+              name="title"
+              required
+              placeholder="Lead Female, 20s Drama"
+              defaultValue={initialData?.title ?? ""}
+            />
           </label>
           <label className="field">
             <span>Project Name</span>
-            <input name="project_name" placeholder="Untitled Short Film" />
+            <input
+              name="project_name"
+              placeholder="Untitled Short Film"
+              defaultValue={initialData?.project_name ?? ""}
+            />
           </label>
         </div>
         <label className="field">
           <span>Project Type</span>
-          <select name="project_type">
+          <select name="project_type" defaultValue={initialData?.project_type ?? ""}>
             <option value="">Select type…</option>
             {PROJECT_TYPES.map((t) => (
               <option key={t.value} value={t.value}>{t.label}</option>
@@ -94,6 +122,7 @@ export function RoleForm() {
             name="description"
             rows={5}
             placeholder="Describe the character, tone, what makes someone right for this role…"
+            defaultValue={initialData?.description ?? ""}
           />
         </label>
       </div>
@@ -121,18 +150,32 @@ export function RoleForm() {
         <div className="form-grid-2">
           <label className="field">
             <span>Age Min</span>
-            <input name="age_min" type="number" min={0} max={100} placeholder="18" />
+            <input
+              name="age_min"
+              type="number"
+              min={0}
+              max={100}
+              placeholder="18"
+              defaultValue={initialData?.age_min ?? ""}
+            />
           </label>
           <label className="field">
             <span>Age Max</span>
-            <input name="age_max" type="number" min={0} max={100} placeholder="30" />
+            <input
+              name="age_max"
+              type="number"
+              min={0}
+              max={100}
+              placeholder="30"
+              defaultValue={initialData?.age_max ?? ""}
+            />
           </label>
         </div>
 
         <div className="form-grid-2">
           <label className="field">
             <span>Union Status</span>
-            <select name="union_status">
+            <select name="union_status" defaultValue={initialData?.union_status ?? ""}>
               <option value="">Any</option>
               {UNION_OPTIONS.map((o) => (
                 <option key={o.value} value={o.value}>{o.label}</option>
@@ -141,7 +184,11 @@ export function RoleForm() {
           </label>
           <label className="field">
             <span>Location</span>
-            <input name="location" placeholder="Los Angeles, CA or Remote" />
+            <input
+              name="location"
+              placeholder="Los Angeles, CA or Remote"
+              defaultValue={initialData?.location ?? ""}
+            />
           </label>
         </div>
       </div>
@@ -152,7 +199,7 @@ export function RoleForm() {
         <div className="form-grid-2">
           <label className="field">
             <span>Compensation</span>
-            <select name="compensation">
+            <select name="compensation" defaultValue={initialData?.compensation ?? ""}>
               <option value="">Select…</option>
               {COMP_OPTIONS.map((o) => (
                 <option key={o.value} value={o.value}>{o.label}</option>
@@ -161,17 +208,28 @@ export function RoleForm() {
           </label>
           <label className="field">
             <span>Shoot Dates</span>
-            <input name="shoot_dates" placeholder="Late June 2026" />
+            <input
+              name="shoot_dates"
+              placeholder="Late June 2026"
+              defaultValue={initialData?.shoot_dates ?? ""}
+            />
           </label>
         </div>
         <label className="field">
           <span>Application Deadline</span>
-          <input name="deadline" type="date" />
+          <input name="deadline" type="date" defaultValue={defaultDeadline} />
         </label>
       </div>
 
-      <button type="submit" className="primary-button" disabled={pending} style={{ width: "100%", marginTop: 8 }}>
-        {pending ? "Publishing…" : "Publish Role →"}
+      <button
+        type="submit"
+        className="primary-button"
+        disabled={pending}
+        style={{ width: "100%", marginTop: 8 }}
+      >
+        {pending
+          ? isEdit ? "Saving…" : "Publishing…"
+          : isEdit ? "Save Changes →" : "Publish Role →"}
       </button>
     </form>
   );

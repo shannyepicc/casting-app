@@ -4,6 +4,7 @@ import { AppShell } from "@/components/app-shell";
 import { RoleCard } from "@/components/role-card";
 import { getRolesByCd } from "@/lib/supabase/queries";
 import { createClient } from "@/lib/supabase/server";
+import { Pencil } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -68,13 +69,22 @@ export default async function MyRolesPage() {
                 <div className="role-manage-card">
                   <RoleCard role={role} applicantCount={role.applicant_count} />
                 </div>
-                <Link
-                  href={`/roles/${role.id}/applicants`}
-                  className="ghost-button"
-                  style={{ whiteSpace: "nowrap", alignSelf: "flex-start" }}
-                >
-                  {role.applicant_count} Applicant{role.applicant_count !== 1 ? "s" : ""} →
-                </Link>
+                <div className="role-manage-actions">
+                  <Link
+                    href={`/roles/${role.id}/applicants`}
+                    className="ghost-button"
+                    style={{ whiteSpace: "nowrap", fontSize: "0.88rem" }}
+                  >
+                    {role.applicant_count} Applicant{role.applicant_count !== 1 ? "s" : ""} →
+                  </Link>
+                  <Link
+                    href={`/roles/${role.id}/edit`}
+                    className="ghost-button"
+                    style={{ whiteSpace: "nowrap", fontSize: "0.88rem", display: "flex", alignItems: "center", gap: 6 }}
+                  >
+                    <Pencil size={13} /> Edit
+                  </Link>
+                </div>
               </div>
             ))}
           </div>

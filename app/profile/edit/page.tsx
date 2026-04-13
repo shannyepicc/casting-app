@@ -114,11 +114,30 @@ export default function ProfileEditPage() {
     } = await supabase.auth.getUser();
     if (!user) return;
 
-    // Auto-generate a username if this actor doesn't have one yet
+    // Auto-generate a unique username if this actor doesn't have one yet
     let updates: Partial<Profile> = { ...profile, onboarding_complete: true };
 
     if (!profile.username && profile.full_name && profile.account_type === "actor") {
-      const candidate = toUsername(profile.full_name);
+      const base = toUsername(profile.full_name);
+
+      // Find the first available username: base → base-1 → base-2 → ...
+      let candidate = base;
+      let attempt = 0;
+      const MAX_ATTEMPTS = 20;
+
+      while (attempt < MAX_ATTEMPTS) {
+        const { data: existing } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("username", candidate)
+          .maybeSingle();
+
+        if (!existing) break; // slot is free
+
+        attempt++;
+        candidate = toUsernameWithSuffix(base, attempt);
+      }
+
       updates.username = candidate;
     }
 
@@ -127,20 +146,7 @@ export default function ProfileEditPage() {
       .update(updates)
       .eq("id", user.id);
 
-    // If username already taken, retry with a random suffix
-    if (saveError?.code === "23505" && profile.full_name) {
-      updates.username = toUsernameWithSuffix(profile.full_name);
-      const { error: retryError } = await supabase
-        .from("profiles")
-        .update(updates)
-        .eq("id", user.id);
-
-      if (retryError) {
-        setError(retryError.message);
-        setSaving(false);
-        return;
-      }
-    } else if (saveError) {
+    if (saveError) {
       setError(saveError.message);
       setSaving(false);
       return;

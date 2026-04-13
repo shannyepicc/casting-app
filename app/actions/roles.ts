@@ -50,6 +50,49 @@ export async function createRole(formData: FormData) {
   redirect(`/roles/${role.id}`);
 }
 
+export async function updateRole(roleId: string, formData: FormData) {
+  const supabase = await createClient();
+
+  const { data: authData } = await supabase.auth.getUser();
+  if (!authData.user) redirect("/auth/login");
+
+  // Verify ownership — only the creator who posted can edit
+  const { data: existing } = await supabase
+    .from("roles")
+    .select("cd_id")
+    .eq("id", roleId)
+    .single();
+
+  if (!existing || existing.cd_id !== authData.user.id) redirect(`/roles/${roleId}`);
+
+  const genderRaw = formData.getAll("gender") as string[];
+
+  const payload = {
+    title:        formData.get("title") as string,
+    project_name: (formData.get("project_name") as string) || null,
+    project_type: (formData.get("project_type") as string) || null,
+    description:  (formData.get("description") as string) || null,
+    gender:       genderRaw.length > 0 ? genderRaw : null,
+    age_min:      formData.get("age_min") ? Number(formData.get("age_min")) : null,
+    age_max:      formData.get("age_max") ? Number(formData.get("age_max")) : null,
+    union_status: (formData.get("union_status") as string) || null,
+    location:     (formData.get("location") as string) || null,
+    compensation: (formData.get("compensation") as string) || null,
+    shoot_dates:  (formData.get("shoot_dates") as string) || null,
+    deadline:     (formData.get("deadline") as string) || null,
+  };
+
+  const { error } = await supabase
+    .from("roles")
+    .update(payload)
+    .eq("id", roleId)
+    .eq("cd_id", authData.user.id);
+
+  if (error) throw new Error(error.message);
+
+  redirect(`/roles/${roleId}`);
+}
+
 export async function closeRole(roleId: string) {
   const supabase = await createClient();
   const { data: authData } = await supabase.auth.getUser();
