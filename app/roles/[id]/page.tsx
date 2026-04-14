@@ -39,7 +39,18 @@ export default async function RoleDetailPage({ params }: { params: Promise<{ id:
 
   const supabase = await createClient();
   const { data: authData } = await supabase.auth.getUser();
-  const isOwner = authData.user?.id === role.cd_id;
+
+  // Must be both the creator of the role AND a creator account type
+  let isOwner = false;
+  if (authData.user?.id === role.cd_id) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("account_type")
+      .eq("id", authData.user.id)
+      .single();
+    isOwner = profile?.account_type === "creator";
+  }
+
   const closed = isEffectivelyClosed(role);
   const expired = isExpired(role);
 

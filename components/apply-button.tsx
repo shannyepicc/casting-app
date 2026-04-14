@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { applyToRole, withdrawFromRole } from "@/app/actions/apply";
 
 export function ApplyButton({ roleId, isClosed }: { roleId: string; isClosed: boolean }) {
   const supabase = createClient();
@@ -40,26 +41,15 @@ export function ApplyButton({ roleId, isClosed }: { roleId: string; isClosed: bo
     const { data: authData } = await supabase.auth.getUser();
     if (!authData.user) { router.push("/auth/login"); return; }
 
-    await supabase.from("applications").insert({
-      role_id: roleId,
-      actor_id: authData.user.id,
-    });
-    setState("applied");
+    const result = await applyToRole(roleId);
+    if (!result.error) setState("applied");
     setWorking(false);
   }
 
   async function withdraw() {
     setWorking(true);
-    const { data: authData } = await supabase.auth.getUser();
-    if (!authData.user) { setWorking(false); return; }
-
-    await supabase
-      .from("applications")
-      .delete()
-      .eq("role_id", roleId)
-      .eq("actor_id", authData.user.id);
-
-    setState("open");
+    const result = await withdrawFromRole(roleId);
+    if (!result.error) setState("open");
     setWorking(false);
   }
 
@@ -76,7 +66,6 @@ export function ApplyButton({ roleId, isClosed }: { roleId: string; isClosed: bo
   }
 
   if (state === "not_actor") {
-    // CDs see nothing (they own the role side)
     return null;
   }
 
