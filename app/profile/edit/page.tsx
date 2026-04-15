@@ -292,7 +292,7 @@ export default function ProfileEditPage() {
                     <select
                       value={profile.gender ?? ""}
                       onChange={(e) => set("gender", e.target.value)}
-                      style={{ borderRadius: 18, border: "1px solid var(--line)", padding: "14px 16px", background: "rgba(255,255,255,0.9)", color: "var(--text)" }}
+                      style={{ borderRadius: 18, border: "1px solid var(--line)", padding: "14px 16px", background: "rgba(255,255,255,0.06)", color: "var(--text)" }}
                     >
                       <option value="">Select…</option>
                       {GENDER_OPTIONS.map((g) => (
@@ -307,7 +307,7 @@ export default function ProfileEditPage() {
                     <select
                       value={profile.union_status ?? ""}
                       onChange={(e) => set("union_status", e.target.value)}
-                      style={{ borderRadius: 18, border: "1px solid var(--line)", padding: "14px 16px", background: "rgba(255,255,255,0.9)", color: "var(--text)" }}
+                      style={{ borderRadius: 18, border: "1px solid var(--line)", padding: "14px 16px", background: "rgba(255,255,255,0.06)", color: "var(--text)" }}
                     >
                       <option value="">Select…</option>
                       {UNION_OPTIONS.map((u) => (

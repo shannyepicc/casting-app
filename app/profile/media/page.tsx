@@ -98,7 +98,7 @@ function ClipModal({
                 placeholder="Add a title…"
                 style={{
                   font: "inherit", fontWeight: 600, fontSize: "1.1rem",
-                  background: "rgba(255,255,255,0.9)", border: "1px solid var(--line-strong)",
+                  background: "rgba(255,255,255,0.08)", border: "1px solid var(--line-strong)",
                   borderRadius: 10, padding: "5px 12px", color: "var(--text)", width: "100%"
                 }}
               />

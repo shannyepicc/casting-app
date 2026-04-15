@@ -101,11 +101,15 @@ export function AppShell({
     router.refresh();
   }
 
-  const navItems = user
-    ? accountType === "creator"
-      ? cdNav
-      : actorNav
-    : publicNav;
+  // Wait until both user + accountType are resolved to avoid flashing
+  // the wrong nav set during the brief window between auth load and profile fetch
+  const navItems = loadingUser
+    ? []
+    : user
+      ? accountType === "creator"
+        ? cdNav
+        : actorNav
+      : publicNav;
 
   return (
     <div className="app-frame">
@@ -133,9 +137,9 @@ export function AppShell({
                 <Link
                   key={item.href}
                   href={item.href}
-                  style={active ? { borderColor: "var(--line-strong)", background: "rgba(255,255,255,0.88)" } : {}}
+                  className={active ? "active" : ""}
                 >
-                  <item.Icon size={16} className="nav-icon" style={{ opacity: active ? 0.9 : 0.55 }} />
+                  <item.Icon size={16} className="nav-icon" style={{ opacity: active ? 1 : 0.55 }} />
                   <span>{item.label}</span>
                 </Link>
               );
