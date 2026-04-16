@@ -6,8 +6,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import {
-  Clapperboard,
-  LayoutDashboard,
+  Home,
   Compass,
   Briefcase,
   User,
@@ -15,34 +14,51 @@ import {
   Bookmark,
   ListChecks,
   Plus,
-  type LucideIcon
+  type LucideIcon,
 } from "lucide-react";
+import { SlateLogo } from "@/components/slate-logo";
+import { ModeToggle, useModeToggle } from "@/components/mode-toggle";
+import type { ActiveMode } from "@/lib/types";
 
-const publicNav: { href: Route; label: string; Icon: LucideIcon }[] = [
-  { href: "/discovery", label: "Discovery",    Icon: Compass },
-  { href: "/roles",     label: "Browse Roles", Icon: Briefcase },
+type NavItem = { href: Route; label: string; Icon: LucideIcon };
+
+const publicNav: NavItem[] = [
+  { href: "/home",       label: "Home",         Icon: Home },
+  { href: "/roles",      label: "Browse Roles", Icon: Briefcase },
+  { href: "/discovery",  label: "Talent",       Icon: Compass },
 ];
 
-const actorNav: { href: Route; label: string; Icon: LucideIcon }[] = [
-  { href: "/dashboard",     label: "Dashboard",     Icon: LayoutDashboard },
-  { href: "/discovery",     label: "Discovery",     Icon: Compass },
-  { href: "/roles",         label: "Browse Roles",  Icon: Briefcase },
-  { href: "/profile/edit",  label: "My Profile",    Icon: User },
-  { href: "/profile/media", label: "Media Library", Icon: Film },
+const actorNav: NavItem[] = [
+  { href: "/home",           label: "Home",          Icon: Home },
+  { href: "/opportunities",  label: "Opportunities", Icon: Briefcase },
+  { href: "/profile/edit",   label: "My Profile",    Icon: User },
+  { href: "/profile/media",  label: "Media Library", Icon: Film },
 ];
 
-const cdNav: { href: Route; label: string; Icon: LucideIcon }[] = [
-  { href: "/discovery",     label: "Discovery",  Icon: Compass },
-  { href: "/shortlist",     label: "Shortlist",  Icon: Bookmark },
-  { href: "/profile/roles", label: "My Roles",   Icon: ListChecks },
-  { href: "/roles/new",     label: "Post a Role",Icon: Plus },
+const creatorNav: NavItem[] = [
+  { href: "/home",           label: "Home",       Icon: Home },
+  { href: "/talent",         label: "Talent",     Icon: Compass },
+  { href: "/profile/roles",  label: "My Roles",   Icon: ListChecks },
+  { href: "/roles/new",      label: "Post a Role",Icon: Plus },
+  { href: "/shortlist",      label: "Shortlist",  Icon: Bookmark },
 ];
+
+function getNavItems(
+  accountType: "actor" | "creator" | "both" | null,
+  activeMode: ActiveMode
+): NavItem[] {
+  if (!accountType) return publicNav;
+  if (accountType === "actor") return actorNav;
+  if (accountType === "creator") return creatorNav;
+  // both — use active mode
+  return activeMode === "creator" ? creatorNav : actorNav;
+}
 
 export function AppShell({
   children,
   title,
   eyebrow,
-  actions
+  actions,
 }: {
   children: ReactNode;
   title: string;
@@ -52,9 +68,11 @@ export function AppShell({
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
+
   const [user, setUser] = useState<{ email?: string } | null>(null);
-  const [accountType, setAccountType] = useState<"actor" | "creator" | null>(null);
+  const [accountType, setAccountType] = useState<"actor" | "creator" | "both" | null>(null);
   const [loadingUser, setLoadingUser] = useState(true);
+  const [mode, setMode] = useModeToggle();
 
   async function loadUser() {
     const { data } = await supabase.auth.getUser();
@@ -66,7 +84,7 @@ export function AppShell({
         .select("account_type")
         .eq("id", authUser.id)
         .single();
-      setAccountType((profile?.account_type as "actor" | "creator") ?? null);
+      setAccountType((profile?.account_type as typeof accountType) ?? null);
     } else {
       setAccountType(null);
     }
@@ -75,7 +93,6 @@ export function AppShell({
 
   useEffect(() => {
     loadUser();
-
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       if (session?.user) {
@@ -85,13 +102,12 @@ export function AppShell({
           .eq("id", session.user.id)
           .single()
           .then(({ data: profile }) => {
-            setAccountType((profile?.account_type as "actor" | "creator") ?? null);
+            setAccountType((profile?.account_type as typeof accountType) ?? null);
           });
       } else {
         setAccountType(null);
       }
     });
-
     return () => listener.subscription.unsubscribe();
   }, []);
 
@@ -101,34 +117,39 @@ export function AppShell({
     router.refresh();
   }
 
-  // Wait until both user + accountType are resolved to avoid flashing
-  // the wrong nav set during the brief window between auth load and profile fetch
-  const navItems = loadingUser
-    ? []
-    : user
-      ? accountType === "creator"
-        ? cdNav
-        : actorNav
-      : publicNav;
+  const navItems = loadingUser ? [] : getNavItems(accountType, mode);
 
   return (
     <div className="app-frame">
       <aside className="sidebar">
         <div className="sidebar-inner">
-          <Link href="/" className="brand-block" style={{ textDecoration: "none" }}>
-            <div className="brand-mark">
-              <Clapperboard size={24} />
-            </div>
-            <div className="brand-copy">
-              <p className="eyebrow">Platform</p>
-              <h1>Slate</h1>
-            </div>
+          <Link href="/" style={{ textDecoration: "none", display: "inline-flex" }}>
+            <SlateLogo size={38} />
           </Link>
 
-          <div className="sidebar-status">
-            <span className="status-dot" />
-            <span>{user ? user.email ?? "Signed in" : "Guest mode"}</span>
-          </div>
+          {/* Mode toggle — only for 'both' users */}
+          {!loadingUser && accountType === "both" && (
+            <ModeToggle mode={mode} onChange={setMode} />
+          )}
+
+          {/* Auth CTA or user status */}
+          {!loadingUser && (
+            user ? (
+              <div className="sidebar-status">
+                <span className="status-dot" />
+                <span>{user.email ?? "Signed in"}</span>
+              </div>
+            ) : (
+              <div style={{ display: "grid", gap: 8 }}>
+                <Link href="/auth/signup" className="primary-button" style={{ textAlign: "center", fontSize: "0.88rem" }}>
+                  Create account
+                </Link>
+                <Link href="/auth/login" className="ghost-button" style={{ textAlign: "center", fontSize: "0.88rem" }}>
+                  Sign in
+                </Link>
+              </div>
+            )
+          )}
 
           <nav className="sidebar-nav">
             {navItems.map((item) => {
@@ -146,31 +167,17 @@ export function AppShell({
             })}
           </nav>
 
-          <div className="sidebar-card">
-            {!loadingUser && (
-              <>
-                {user ? (
-                  <button
-                    className="ghost-button"
-                    style={{ width: "100%", fontSize: "0.88rem" }}
-                    onClick={handleSignOut}
-                  >
-                    Sign out
-                  </button>
-                ) : (
-                  <div style={{ display: "grid", gap: 10 }}>
-                    <p className="sidebar-label">Join the network</p>
-                    <Link href="/auth/signup" className="primary-button" style={{ textAlign: "center", fontSize: "0.88rem" }}>
-                      Create account
-                    </Link>
-                    <Link href="/auth/login" className="ghost-button" style={{ textAlign: "center", fontSize: "0.88rem" }}>
-                      Sign in
-                    </Link>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
+          {!loadingUser && user && (
+            <div className="sidebar-card">
+              <button
+                className="ghost-button"
+                style={{ width: "100%", fontSize: "0.88rem" }}
+                onClick={handleSignOut}
+              >
+                Sign out
+              </button>
+            </div>
+          )}
         </div>
       </aside>
 

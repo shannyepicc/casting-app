@@ -16,7 +16,7 @@ export async function createRole(formData: FormData) {
     .eq("id", authData.user.id)
     .single();
 
-  if (profile?.account_type !== "creator") redirect("/discovery");
+  if (!["creator", "both"].includes(profile?.account_type ?? "")) redirect("/home");
 
   const genderRaw = formData.getAll("gender") as string[];
 
@@ -46,6 +46,14 @@ export async function createRole(formData: FormData) {
   if (error || !role) {
     throw new Error(error?.message ?? "Failed to create role");
   }
+
+  // Create a feed post so this role surfaces in the social feed
+  await supabase.from("posts").insert({
+    author_id: authData.user.id,
+    type: "role",
+    body: payload.description ?? null,
+    role_id: role.id,
+  });
 
   redirect(`/roles/${role.id}`);
 }

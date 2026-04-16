@@ -22,7 +22,7 @@ export function ApplyButton({ roleId, isClosed }: { roleId: string; isClosed: bo
         .eq("id", authData.user.id)
         .single();
 
-      if (profile?.account_type !== "actor") { setState("not_actor"); return; }
+      if (!["actor", "both"].includes(profile?.account_type ?? "")) { setState("not_actor"); return; }
 
       const { data: existing } = await supabase
         .from("applications")

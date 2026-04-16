@@ -1,8 +1,13 @@
-export type UserType = "actor" | "creator";
+export type UserType = "actor" | "creator" | "both";
+export type ActiveMode = "actor" | "creator";
 
 export type Profile = {
   id: string;
   account_type: UserType;
+  creator_handle: string | null;
+  creator_bio: string | null;
+  project_types: string[];
+  past_productions: string | null;
   username: string | null;
   full_name: string | null;
   bio: string | null;

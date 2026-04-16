@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Clapperboard } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { SlateLogo } from "@/components/slate-logo";
 
 export function LandingNav() {
   const router = useRouter();
@@ -40,14 +40,8 @@ export function LandingNav() {
 
   return (
     <header className="slate-nav">
-      <Link href="/" className="brand-block" style={{ textDecoration: "none" }}>
-        <div className="brand-mark">
-          <Clapperboard size={22} />
-        </div>
-        <div className="brand-copy">
-          <p className="eyebrow">Platform</p>
-          <h1>Slate</h1>
-        </div>
+      <Link href="/" style={{ textDecoration: "none", display: "inline-flex" }}>
+        <SlateLogo size={34} />
       </Link>
 
       <div className="slate-nav-actions">

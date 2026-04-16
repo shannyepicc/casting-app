@@ -94,6 +94,41 @@ export async function getActorsForDiscovery(
   return (data ?? []) as ActorProfile[];
 }
 
+/** Same as getActorsForDiscovery but also includes 'both' account types (they have actor profiles). */
+export async function getActorsForTalent(
+  filters: SearchFilters = {}
+): Promise<ActorProfile[]> {
+  const supabase = await createClient();
+
+  let query = supabase
+    .from("profiles")
+    .select(
+      "id, username, full_name, bio, location, headshot_url, age, gender, union_status, talent_type, languages, skills, tags, availability"
+    )
+    .in("account_type", ["actor", "both"])
+    .eq("onboarding_complete", true)
+    .not("username", "is", null)
+    .not("full_name", "is", null);
+
+  if (filters.type?.length) query = query.overlaps("talent_type", filters.type);
+  if (filters.age) {
+    const range = getAgeRange(filters.age);
+    if (range) query = query.gte("age", range.min).lte("age", range.max);
+  }
+  if (filters.gender) query = query.eq("gender", filters.gender);
+  if (filters.location) query = query.ilike("location", `%${filters.location}%`);
+  if (filters.tags?.length) {
+    query = query.or(`tags.ov.{${filters.tags.join(",")}},skills.ov.{${filters.tags.join(",")}}`);
+  }
+  if (filters.q) {
+    const q = filters.q.replace(/'/g, "''");
+    query = query.or(`full_name.ilike.%${q}%,bio.ilike.%${q}%`);
+  }
+
+  const { data } = await query.order("created_at", { ascending: false });
+  return (data ?? []) as ActorProfile[];
+}
+
 /**
  * Fetch a single actor by their username, plus their ready public videos.
  * Returns { actor: null } if not found or not an actor.
@@ -109,7 +144,7 @@ export async function getActorByUsername(
       "id, username, full_name, bio, location, headshot_url, age, gender, union_status, talent_type, languages, skills, tags, availability"
     )
     .eq("username", username)
-    .eq("account_type", "actor")
+    .in("account_type", ["actor", "both"])
     .single();
 
   if (error || !actor) return { actor: null, media: [] };
@@ -282,4 +317,87 @@ export async function getApplicantsForRole(roleId: string): Promise<Applicant[]>
     .order("created_at", { ascending: false });
 
   return ((data ?? []).filter((r) => r.actor)) as unknown as Applicant[];
+}
+
+// ─── Feed / Social Types ──────────────────────────────────────────────────────
+
+export type FeedPost = {
+  id: string;
+  type: "update" | "role" | "announcement";
+  body: string | null;
+  tag: string | null;
+  media_url: string | null;
+  created_at: string;
+  author: {
+    id: string;
+    username: string | null;
+    full_name: string;
+    headshot_url: string | null;
+    account_type: string;
+  };
+  role: {
+    id: string;
+    title: string;
+    project_name: string | null;
+    project_type: string | null;
+    location: string | null;
+    compensation: string | null;
+    status: string;
+    deadline: string | null;
+    age_min: number | null;
+    age_max: number | null;
+    gender: string[] | null;
+    description: string | null;
+  } | null;
+};
+
+/** All posts (feed), newest first. */
+export async function getFeedPosts(): Promise<FeedPost[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("posts")
+    .select(`
+      id, type, body, tag, media_url, created_at,
+      author:author_id ( id, username, full_name, headshot_url, account_type ),
+      role:role_id ( id, title, project_name, project_type, location, compensation, status, deadline, age_min, age_max, gender, description )
+    `)
+    .order("created_at", { ascending: false })
+    .limit(60);
+
+  return (data ?? []) as unknown as FeedPost[];
+}
+
+/** Opportunities feed — role posts only, with optional sort. */
+export async function getOpportunities(
+  sort: "newest" | "location" = "newest",
+  locationFilter?: string,
+  typeFilter?: string
+): Promise<FeedPost[]> {
+  const supabase = await createClient();
+
+  let query = supabase
+    .from("posts")
+    .select(`
+      id, type, body, tag, media_url, created_at,
+      author:author_id ( id, username, full_name, headshot_url, account_type ),
+      role:role_id ( id, title, project_name, project_type, location, compensation, status, deadline, age_min, age_max, gender, description )
+    `)
+    .eq("type", "role")
+    .not("role_id", "is", null);
+
+  const { data } = await query.order("created_at", { ascending: false }).limit(60);
+  const posts = (data ?? []) as unknown as FeedPost[];
+
+  // Client-side filters
+  let filtered = posts.filter((p) => p.role?.status === "open");
+  if (locationFilter) {
+    filtered = filtered.filter((p) =>
+      p.role?.location?.toLowerCase().includes(locationFilter.toLowerCase())
+    );
+  }
+  if (typeFilter && typeFilter !== "all") {
+    filtered = filtered.filter((p) => p.role?.project_type === typeFilter);
+  }
+
+  return filtered;
 }

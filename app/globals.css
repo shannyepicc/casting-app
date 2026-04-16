@@ -2775,3 +2775,414 @@ video {
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: rgba(160, 200, 230, 0.15); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(160, 200, 230, 0.28); }
+
+/* ══════════════════════════════════════════════════════════
+   V1 SOCIAL LAYER
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Mode toggle (Both users) ──────────────────────────── */
+.mode-toggle {
+  display: flex;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.mode-toggle-btn {
+  flex: 1;
+  padding: 7px 10px;
+  border-radius: 9px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+  white-space: nowrap;
+}
+
+.mode-toggle-btn.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: 1px solid rgba(201, 150, 46, 0.25);
+}
+
+/* ── Feed layout ───────────────────────────────────────── */
+.feed-layout {
+  max-width: 680px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0 0 48px;
+}
+
+.feed-posts {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.feed-empty {
+  text-align: center;
+  padding: 48px 32px;
+}
+
+/* ── Compose bar ───────────────────────────────────────── */
+.compose-bar {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.compose-bar-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  gap: 12px;
+}
+
+.compose-bar-placeholder {
+  color: var(--muted);
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+.compose-bar-post-btn {
+  padding: 7px 16px;
+  border-radius: 99px;
+  background: var(--accent);
+  color: #0a1520;
+  font-size: 0.82rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.compose-bar-form {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.compose-type-row {
+  display: flex;
+  gap: 6px;
+}
+
+.compose-type-btn {
+  padding: 6px 14px;
+  border-radius: 99px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.compose-type-btn.active {
+  background: var(--accent-soft);
+  border-color: rgba(201, 150, 46, 0.3);
+  color: var(--accent);
+}
+
+.compose-tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.compose-tag-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 99px;
+  border: 1px solid var(--line);
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: var(--muted);
+  transition: border-color 150ms ease, color 150ms ease;
+}
+
+.compose-tag-label input[type="radio"] {
+  accent-color: var(--accent);
+}
+
+.compose-tag-label:has(input:checked) {
+  border-color: rgba(201, 150, 46, 0.4);
+  color: var(--text);
+}
+
+.compose-textarea {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  color: var(--text);
+  font-size: 0.92rem;
+  line-height: 1.6;
+  resize: vertical;
+  min-height: 80px;
+}
+
+.compose-textarea:focus {
+  outline: none;
+  border-color: rgba(201, 150, 46, 0.4);
+}
+
+.compose-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* ── Post card ─────────────────────────────────────────── */
+.post-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: border-color 180ms ease;
+}
+
+.post-card:hover {
+  border-color: var(--line-strong);
+}
+
+.post-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.post-author-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.post-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.post-avatar-placeholder {
+  background: linear-gradient(135deg, var(--navy), var(--panel-strong));
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: var(--accent);
+}
+
+.post-author-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.post-author-name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.post-author-meta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.post-dot { opacity: 0.4; }
+
+.post-type-badge {
+  padding: 2px 7px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--line);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.post-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.post-tag-pill {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  width: fit-content;
+}
+
+.post-text {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: var(--text);
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+/* ── Post role card ────────────────────────────────────── */
+.post-role-card {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.post-role-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.post-role-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text);
+  margin: 0;
+}
+
+.post-role-project {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin: 3px 0 0;
+}
+
+.post-role-type-badge {
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: var(--accent-soft);
+  border: 1px solid rgba(201, 150, 46, 0.2);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--accent);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.post-role-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.post-role-meta span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.post-role-description {
+  font-size: 0.88rem;
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.post-role-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding-top: 4px;
+}
+
+/* ── Opportunities filter pills ────────────────────────── */
+.opp-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.opp-filter-pill {
+  padding: 6px 14px;
+  border-radius: 99px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 150ms ease;
+}
+
+.opp-filter-pill:hover {
+  border-color: var(--line-strong);
+  color: var(--text);
+}
+
+.opp-filter-pill.active {
+  background: var(--accent-soft);
+  border-color: rgba(201, 150, 46, 0.35);
+  color: var(--accent);
+}
+
+/* ── Talent nudge card ─────────────────────────────────── */
+.talent-nudge-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: rgba(201, 150, 46, 0.06);
+  border: 1px solid rgba(201, 150, 46, 0.2);
+  border-radius: var(--radius-md);
+  padding: 18px 22px;
+  margin-bottom: 4px;
+}
+
+/* ── Onboarding — Both card ────────────────────────────── */
+.role-card-both {
+  border-color: rgba(201, 150, 46, 0.2) !important;
+  background: rgba(201, 150, 46, 0.03) !important;
+}
+
+.role-card-both.role-card-selected {
+  border-color: rgba(201, 150, 46, 0.6) !important;
+  background: rgba(201, 150, 46, 0.08) !important;
+}
