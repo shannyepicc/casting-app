@@ -27,7 +27,7 @@ export default async function ShortlistPage() {
     .eq("id", authData.user.id)
     .single();
 
-  if (profile?.account_type !== "creator") redirect("/discovery");
+  if (!["creator", "both"].includes(profile?.account_type ?? "")) redirect("/home");
 
   // Fetch shortlisted actors with their profile data
   const { data: shortlistRows } = await supabase

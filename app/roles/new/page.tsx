@@ -14,7 +14,7 @@ export default async function NewRolePage() {
     .eq("id", authData.user.id)
     .single();
 
-  if (profile?.account_type !== "creator") redirect("/discovery");
+  if (!["creator", "both"].includes(profile?.account_type ?? "")) redirect("/home");
 
   return (
     <AppShell

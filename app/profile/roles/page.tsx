@@ -19,7 +19,7 @@ export default async function MyRolesPage() {
     .eq("id", authData.user.id)
     .single();
 
-  if (profile?.account_type !== "creator") redirect("/discovery");
+  if (!["creator", "both"].includes(profile?.account_type ?? "")) redirect("/home");
 
   const roles = await getRolesByCd(authData.user.id);
   const totalApplicants = roles.reduce((sum, r) => sum + r.applicant_count, 0);
